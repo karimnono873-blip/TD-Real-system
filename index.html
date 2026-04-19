@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction du TD - Systèmes Temps Réel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;500;700&display=swap');
+
+        :root {
+            /* Palette Google Pixel */
+            --pixel-blue: #1a73e8;
+            --pixel-cyan: #12b5cb;
+            --pixel-violet: #a142f4;
+            --bg-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #e8eaed;
+            --highlight-cyan: #e0f7fa;
+            --highlight-blue: #e8f0fe;
+        }
+        
+        body {
+            font-family: 'Product Sans', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 45px;
+            border-radius: 24px; /* Arrondi plus prononcé style Pixel */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        h1 {
+            color: var(--pixel-blue);
+            font-weight: 700;
+            font-size: 2.2em;
+            border-bottom: 3px solid var(--pixel-cyan);
+            padding-bottom: 12px;
+            margin-bottom: 35px;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            color: var(--pixel-cyan);
+            margin-top: 45px;
+            font-weight: 500;
+            font-size: 1.5em;
+        }
+
+        h3 {
+            color: var(--pixel-violet);
+            font-weight: 500;
+            font-size: 1.2em;
+            margin-top: 25px;
+        }
+
+        p, li {
+            color: var(--text-primary);
+            font-size: 1.05em;
+        }
+
+        strong {
+            color: var(--pixel-blue);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 25px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px var(--border-color);
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-cyan);
+            color: #00838f; /* Cyan plus foncé pour le contraste textuel */
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .gantt-table th, .gantt-table td {
+            text-align: center;
+            padding: 10px;
+        }
+
+        code {
+            background-color: var(--highlight-blue);
+            color: var(--pixel-blue);
+            border-radius: 6px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            padding: 0.3em 0.6em;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 500;
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+            letter-spacing: 0.3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Correction Série 03 : Ordonnancement Temps Réel</h1>
+        <p>Cette page contient la résolution des exercices de la Série 03 utilisant les notations classiques (C: temps d'exécution, P: période, D: deadline, N: nombre de tâches).</p>
+
+        <h2>Exercice 1</h2>
+        <p><strong>Jeu de tâches :</strong> T1(P=50, C=10), T2(P=40, C=10), T3(P=30, C=15).</p>
+        
+        <h3>1. Critère de Liu et Layland</h3>
+        <p>Le test de Liu et Layland pour RM (Rate Monotonic) stipule que l'ordonnancement est garanti si le facteur d'utilisation <i>U</i> est inférieur ou égal à <i>N(2<sup>1/N</sup> - 1)</i>.</p>
+        <p>Calculons <i>U</i> : <br>
+        <i>U</i> = (10/50) + (10/40) + (15/30) = 0.2 + 0.25 + 0.5 = 0.95.</p>
+        <p>Pour N = 3, la borne est 3(2<sup>1/3</sup> - 1) ≈ 0.779.</p>
+        <p><strong>Conclusion :</strong> Puisque 0.95 &gt; 0.779, le critère de Liu et Layland n'est pas respecté. On ne peut pas garantir mathématiquement que le système est ordonnançable avec RM via ce simple test, il faut faire une analyse exacte.</p>
+
+        <h3>2. Diagramme d'ordonnancement RM</h3>
+        <p>En RM, la priorité est donnée à la tâche ayant la plus petite période. Priorités : <strong>T3 &gt; T2 &gt; T1</strong>.</p>
+        <ul>
+            <li>t=0 : T3, T2, T1 sont prêtes. T3 s'exécute (15 unités).</li>
+            <li>t=15 : T3 termine. T2 s'exécute (10 unités).</li>
+            <li>t=25 : T2 termine. T1 s'exécute.</li>
+            <li>t=30 : T3 est de nouveau prête. T3 préempte T1 (qui a exécuté 5 unités sur 10). T3 s'exécute.</li>
+            <li>t=40 : T2 est prête, mais T3 est plus prioritaire. T3 termine à t=45.</li>
+            <li>t=45 : T2 s'exécute jusqu'à t=50 (fin d'exécution de 5 unités).</li>
+            <li>t=50 : <strong>Échéance ratée pour T1 !</strong> T1 n'a exécuté que 5 de ses 10 unités avant sa deadline.</li>
+        </ul>
+
+        <h2>Exercice 2 - RM et EDF</h2>
+        <p><strong>Jeu de tâches :</strong> T1(P=D=9, C=3), T2(P=D=18, C=5), T3(P=D=12, C=4).</p>
+
+        <h3>1. Trace d'exécution RM (18 premières périodes)</h3>
+        <p>Priorités RM : <strong>T1 &gt; T3 &gt; T2</strong>.</p>
+        <table class="gantt-table">
+            <tr>
+                <th>Temps</th><th>0-3</th><th>3-7</th><th>7-9</th><th>9-12</th><th>12-16</th><th>16-18</th>
+            </tr>
+            <tr>
+                <td>Tâche</td><td>T1</td><td>T3</td><td>T2</td><td>T1</td><td>T3</td><td>T2</td>
+            </tr>
+        </table>
+        <p>À t=18, T2 n'a pu exécuter que 4 unités de temps sur les 5 requises. <strong>T2 rate son échéance à t=18.</strong> L'ordonnancement RM n'est donc pas faisable.</p>
+
+        <h3>2. Trace d'exécution EDF (36 premières périodes)</h3>
+        <p>EDF (Earliest Deadline First) assigne la priorité dynamique à la tâche dont l'échéance absolue est la plus proche.</p>
+        <ul>
+            <li>[0-3]: T1 (D=9)</li>
+            <li>[3-7]: T3 (D=12)</li>
+            <li>[7-9]: T2 (D=18)</li>
+            <li>[9-12]: T1 (D=18, T2 a aussi D=18, on choisit T1)</li>
+            <li>[12-15]: T2 (D=18, T3 a D=24)</li>
+            <li>[15-18]: T3 (D=24, besoin de 4, fait 3)</li>
+            <li>[18-19]: T3 (D=24, termine sa dernière unité)</li>
+            <li>[19-22]: T1 (D=27)</li>
+            <li>[22-24]: T2 (D=36)</li>
+            <li>[24-28]: T3 (D=36)</li>
+            <li>[28-31]: T1 (D=36)</li>
+            <li>[31-34]: T2 (D=36, termine ses 3 unités restantes)</li>
+            <li>[34-36]: Repos (Idle)</li>
+        </ul>
+
+        <h3>3. Facteur d'utilisation du CPU</h3>
+        <p><i>U</i> = (3/9) + (5/18) + (4/12) = 12/36 + 10/36 + 12/36 = 34/36 ≈ <strong>94.4%</strong>.</p>
+
+        <h2>Exercice 3 : RM, EDF et LLF</h2>
+        <p><strong>Tâches à t=0 :</strong> T1(C=1, P=3), T2(C=1, P=4), T3(C=2, P=6).</p>
+        
+        <h3>Calcul du facteur d'utilisation (U)</h3>
+        <p><i>U</i> = (1/3) + (1/4) + (2/6) = 4/12 + 3/12 + 4/12 = 11/12 ≈ <strong>91.6%</strong>.</p>
+        <p><strong>Conclusion :</strong> Comme U ≤ 1, le jeu de tâches est théoriquement ordonnançable par des algorithmes dynamiques optimaux comme EDF et LLF.</p>
+
+        <h2>Exercice 4</h2>
+        <p><strong>Système :</strong> T1(P=20, C=3, D=15), T2(P=80, C=40, D=60), T3(P=40, C=10, D=35).</p>
+
+        <h3>1. Ordonnancement RMA & DMA</h3>
+        <p><strong>Priorités RMA :</strong> Basées sur les périodes les plus courtes. <strong>T1 &gt; T3 &gt; T2</strong>.</p>
+        <p><strong>Priorités DMA :</strong> Basées sur les deadlines les plus courtes. <strong>T1 (15) &gt; T3 (35) &gt; T2 (60)</strong>.</p>
+        <p><strong>Facteur d'utilisation :</strong> U = 3/20 + 40/80 + 10/40 = 0.15 + 0.5 + 0.25 = <strong>0.90</strong>.</p>
+
+        <h2>Exercice 6</h2>
+        <p><strong>Processus :</strong> P1=10, P2=1, P3=2, P4=1, P5=5.</p>
+
+        <h3>1. Diagrammes de Gantt (Arrivée à t=0)</h3>
+        <p><strong>FCFS:</strong></p>
+        <p><code>[P1: 0-10] | [P2: 10-11] | [P3: 11-13] | [P4: 13-14] | [P5: 14-19]</code></p>
+        
+        <p><strong>Round Robin (q=2):</strong></p>
+        <p><code>[P1: 0-2] | [P2: 2-3] | [P3: 3-5] | [P4: 5-6] | [P5: 6-8] | [P1: 8-10] | [P5: 10-12] | [P1: 12-14] | [P5: 14-15] | [P1: 15-19]</code></p>
+
+        <h3>2. SJF préemptif (SRTF) avec temps d'arrivée décalés</h3>
+        <p>Arrivées : t(P1)=0, t(P2)=1, t(P3)=2, t(P4)=3, t(P5)=4.</p>
+        <ul>
+            <li>t=0: P1 s'exécute (reste 10).</li>
+            <li>t=1: P2 arrive. P2 préempte P1 (reste 9).</li>
+            <li>t=2: P2 termine. P3 arrive. P3 s'exécute.</li>
+            <li>t=3: P4 arrive. P4 préempte P3 (reste 1).</li>
+            <li>t=4: P4 termine. P5 arrive. P3 reprend (besoin 1 &lt; P5).</li>
+            <li>t=5: P3 termine. P5 s'exécute (besoin 5).</li>
+            <li>t=10: P5 termine. P1 reprend (reste 9).</li>
+            <li>t=19: P1 termine.</li>
+        </ul>
+
+        <div class="footer">
+            Created by Dahane Ahmed Lamine
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const regex = /\/g;
+            document.body.innerHTML = document.body.innerHTML.replace(regex, '');
+        });
+    </script>
+</body>
+</html>
